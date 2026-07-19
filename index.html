@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tradutor de Gente — decifra o que ninguém te explica</title>
+<meta name="description" content="Cola a mensagem. Recebe a tradução. Decifra silêncios, escreve respostas, resolve o que não sabias dizer.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap');
+
+  :root{
+    --bg: #12141A;
+    --bg-raised: #191C24;
+    --bone: #EDEAE3;
+    --bone-dim: #9A9A94;
+    --amber: #E8A33D;
+    --amber-dim: #6b5227;
+    --line: #2A2E38;
+    --radius: 14px;
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+
+  body{
+    background: var(--bg);
+    color: var(--bone);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, .display{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .wrap{
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+  }
+
+  /* HERO */
+  header{
+    padding: 48px 0 36px;
+    text-align: center;
+  }
+  .glyph{
+    font-size: 34px;
+    display: inline-block;
+    margin-bottom: 18px;
+    color: var(--amber);
+  }
+  header h1{
+    font-size: clamp(28px, 7vw, 40px);
+    line-height: 1.15;
+    margin-bottom: 14px;
+  }
+  header p{
+    color: var(--bone-dim);
+    font-size: 16px;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  /* MODE SELECTOR */
+  .modes{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 32px 0 28px;
+  }
+  .mode-btn{
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 14px;
+    text-align: left;
+    color: var(--bone);
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .mode-btn .icon{ font-size: 20px; display:block; margin-bottom: 8px; }
+  .mode-btn .label{ font-weight: 600; display:block; margin-bottom: 3px; }
+  .mode-btn .sub{ color: var(--bone-dim); font-size: 12.5px; }
+  .mode-btn.active{
+    border-color: var(--amber);
+    background: linear-gradient(180deg, rgba(232,163,61,0.10), rgba(232,163,61,0.02));
+  }
+
+  /* FORM */
+  .card{
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+  }
+  label{
+    display:block;
+    font-size: 13px;
+    color: var(--bone-dim);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-bottom: 8px;
+  }
+  textarea{
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    color: var(--bone);
+    font-family: inherit;
+    font-size: 15px;
+    padding: 14px;
+    resize: vertical;
+    min-height: 110px;
+  }
+  textarea:focus, .mode-btn:focus-visible, button:focus-visible{
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
+  textarea::placeholder{ color: #5c5f68; }
+
+  .submit-btn{
+    width: 100%;
+    margin-top: 18px;
+    background: var(--amber);
+    color: #1a1206;
+    border: none;
+    border-radius: 10px;
+    padding: 16px;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform .1s ease, opacity .15s ease;
+  }
+  .submit-btn:active{ transform: scale(0.98); }
+  .submit-btn:disabled{ opacity: .5; cursor: default; }
+
+  .price-note{
+    text-align: center;
+    color: var(--bone-dim);
+    font-size: 12.5px;
+    margin-top: 12px;
+  }
+  .price-note strong{ color: var(--amber); }
+
+  /* RESULT */
+  .result{
+    display:none;
+    margin-top: 28px;
+  }
+  .result.show{ display:block; }
+  .result-card{
+    background: var(--bg-raised);
+    border: 1px solid var(--amber-dim);
+    border-radius: var(--radius);
+    padding: 22px;
+    white-space: pre-wrap;
+    font-size: 15.5px;
+  }
+  .result-label{
+    color: var(--amber);
+    font-size: 12.5px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 10px;
+    display:block;
+  }
+
+  .loading{
+    display:none;
+    text-align:center;
+    padding: 30px 0;
+    color: var(--bone-dim);
+  }
+  .loading.show{ display:block; }
+  .dots span{
+    display:inline-block;
+    width:6px; height:6px;
+    border-radius:50%;
+    background: var(--amber);
+    margin: 0 3px;
+    animation: pulse 1.2s infinite ease-in-out;
+  }
+  .dots span:nth-child(2){ animation-delay: .2s; }
+  .dots span:nth-child(3){ animation-delay: .4s; }
+  @keyframes pulse{ 0%,80%,100%{ opacity:.25; } 40%{ opacity:1; } }
+
+  footer{
+    text-align:center;
+    margin-top: 50px;
+    color: #5c5f68;
+    font-size: 12px;
+  }
+
+  .error-box{
+    display:none;
+    background: rgba(200,70,70,0.1);
+    border: 1px solid rgba(200,70,70,0.4);
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 13.5px;
+    margin-top: 14px;
+    color: #e8b4b4;
+  }
+  .error-box.show{ display:block; }
+
+  @media (prefers-reduced-motion: reduce){
+    .submit-btn, .mode-btn{ transition: none; }
+    .dots span{ animation: none; opacity: .6; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="glyph">↔</span>
+    <h1>Tradutor de Gente</h1>
+    <p>Cola o que recebeste. Escolhe o que precisas. Recebe a tradução.</p>
+  </header>
+
+  <div class="modes" id="modes">
+    <button class="mode-btn active" data-mode="quis-dizer">
+      <span class="icon">🗨️</span>
+      <span class="label">O que ele/ela quis dizer</span>
+      <span class="sub">Decifra mensagens ambíguas</span>
+    </button>
+    <button class="mode-btn" data-mode="como-responder">
+      <span class="icon">💬</span>
+      <span class="label">Como responder</span>
+      <span class="sub">3 respostas prontas</span>
+    </button>
+    <button class="mode-btn" data-mode="silencio">
+      <span class="icon">🔇</span>
+      <span class="label">Porque desapareceu</span>
+      <span class="sub">Interpreta silêncios</span>
+    </button>
+    <button class="mode-btn" data-mode="sem-drama">
+      <span class="icon">✍️</span>
+      <span class="label">Dizer isto sem drama</span>
+      <span class="sub">Organiza o teu desabafo</span>
+    </button>
+  </div>
+
+  <div class="card">
+    <label for="context">Cola aqui a mensagem ou descreve a situação</label>
+    <textarea id="context" placeholder="Ex: Ela respondeu só 'ok' depois de eu ter dito que gosto dela..."></textarea>
+
+    <button class="submit-btn" id="submitBtn">Traduzir por €1,99</button>
+    <p class="price-note">Pagamento seguro via <strong>SumUp</strong> · recebes a tradução assim que confirmado</p>
+
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="dots"><span></span><span></span><span></span></div>
+    <p style="margin-top:10px;">A confirmar pagamento…</p>
+  </div>
+
+  <div class="result" id="result">
+    <span class="result-label">A tua tradução</span>
+    <div class="result-card" id="resultText"></div>
+  </div>
+
+  <footer>Tradutor de Gente · Pagamentos processados pela SumUp</footer>
+</div>
+
+<script>
+  const modeButtons = document.querySelectorAll('.mode-btn');
+  let activeMode = 'quis-dizer';
+  modeButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      modeButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeMode = btn.dataset.mode;
+    });
+  });
+
+  const modeLabels = {
+    'quis-dizer': 'decifrar o que a pessoa quis dizer com esta mensagem',
+    'como-responder': 'sugerir 3 respostas possíveis (uma educada, uma direta, uma descontraída) a esta mensagem',
+    'silencio': 'interpretar possíveis razões para este silêncio ou desaparecimento, e sugerir como abordar sem parecer ansioso',
+    'sem-drama': 'reescrever este desabafo como uma mensagem clara, calma e direta para enviar à pessoa'
+  };
+
+  const submitBtn = document.getElementById('submitBtn');
+  const contextEl = document.getElementById('context');
+  const loadingEl = document.getElementById('loading');
+  const resultEl = document.getElementById('result');
+  const resultTextEl = document.getElementById('resultText');
+  const errorBox = document.getElementById('errorBox');
+
+  function showError(msg){
+    errorBox.textContent = msg;
+    errorBox.classList.add('show');
+  }
+  function clearError(){
+    errorBox.classList.remove('show');
+  }
+
+  submitBtn.addEventListener('click', async () => {
+    clearError();
+    const context = contextEl.value.trim();
+    if (!context){
+      showError('Escreve ou cola algo antes de continuares.');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'A abrir pagamento…';
+
+    try {
+      // 1. Criar checkout no SumUp
+      const checkoutRes = await fetch('/.netlify/functions/create-checkout', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ amount: 1.99 })
+      });
+      const checkoutData = await checkoutRes.json();
+
+      if (!checkoutData.hosted_checkout_url){
+        throw new Error('Não foi possível criar o pagamento.');
+      }
+
+      // Guarda o contexto para usar depois de voltar do pagamento
+      sessionStorage.setItem('tdg_context', context);
+      sessionStorage.setItem('tdg_mode', activeMode);
+      sessionStorage.setItem('tdg_checkout_id', checkoutData.id);
+
+      // 2. Redireciona para o checkout
+      window.location.href = checkoutData.hosted_checkout_url;
+
+    } catch(err){
+      showError('Algo correu mal: ' + err.message);
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Traduzir por €1,99';
+    }
+  });
+
+  // Ao voltar do pagamento (SumUp redireciona de volta com ?checkout_id=...)
+  window.addEventListener('DOMContentLoaded', async () => {
+    const params = new URLSearchParams(window.location.search);
+    const checkoutId = params.get('checkout_id') || sessionStorage.getItem('tdg_checkout_id');
+    const context = sessionStorage.getItem('tdg_context');
+    const mode = sessionStorage.getItem('tdg_mode');
+
+    if (checkoutId && context){
+      loadingEl.classList.add('show');
+      submitBtn.style.display = 'none';
+
+      try {
+        // 3. Confirma o pagamento
+        const verifyRes = await fetch('/.netlify/functions/verify-checkout', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ checkout_id: checkoutId })
+        });
+        const verifyData = await verifyRes.json();
+
+        if (verifyData.status !== 'PAID'){
+          loadingEl.classList.remove('show');
+          showError('Pagamento não confirmado. Se pagaste e vês este erro, contacta-nos.');
+          submitBtn.style.display = 'block';
+          return;
+        }
+
+        // 4. Gera a tradução
+        loadingEl.querySelector('p').textContent = 'A traduzir...';
+        const genRes = await fetch('/.netlify/functions/generate-response', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ context, instruction: modeLabels[mode] || modeLabels['quis-dizer'] })
+        });
+        const genData = await genRes.json();
+
+        loadingEl.classList.remove('show');
+        resultTextEl.textContent = genData.text || 'Não foi possível gerar a tradução.';
+        resultEl.classList.add('show');
+
+        sessionStorage.removeItem('tdg_context');
+        sessionStorage.removeItem('tdg_mode');
+        sessionStorage.removeItem('tdg_checkout_id');
+
+      } catch(err){
+        loadingEl.classList.remove('show');
+        showError('Algo correu mal ao confirmar: ' + err.message);
+        submitBtn.style.display = 'block';
+      }
+    }
+  });
+</script>
+</body>
+</html>
